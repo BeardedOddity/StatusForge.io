@@ -45,7 +45,7 @@ The Universal Scout: A cross-platform background scanner (Windows, macOS, Linux/
 
 The Metadata Waterfall: A smart fetching system that grabs high-res cover art, genres, and release dates from RAWG, IGDB, SteamGridDB, and GOG.
 
-The Master Vault: A local database that lets you manually rename games or "Exile" apps (like chrome.exe) so they are never tracked.
+The Vault: A local database that lets you manually rename games or "Exile" apps (like chrome.exe) so they are never tracked.
 
 **One-Click Installation**
 
