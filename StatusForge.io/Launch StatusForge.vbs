@@ -7,6 +7,21 @@ currentFolder = fso.GetParentFolderName(WScript.ScriptFullName)
 ' Set the working directory so the installer knows where to build
 WshShell.CurrentDirectory = currentFolder
 
+' --- THE PYTHON OS CHECK ---
+' Silently check if Python is actually installed on the user's PC
+pythonCheck = WshShell.Run("cmd.exe /c python --version", 0, True)
+
+If pythonCheck <> 0 Then
+    ' Python is missing! Alert the user and open the download page
+    warningMessage = "StatusForge requires Python to run, but it isn't installed on this PC!" & vbCrLf & vbCrLf & "Click OK to download Python. IMPORTANT: When installing, you MUST check the box that says 'Add python.exe to PATH' at the bottom of the installer!"
+    MsgBox warningMessage, 48, "StatusForge: Missing Required Software"
+    
+    ' Automatically open the official download page
+    WshShell.Run "https://www.python.org/downloads/"
+    WScript.Quit
+End If
+' ---------------------------
+
 ' Target the invisible Python runner inside your specific sandbox
 pythonwPath = currentFolder & "\venv\Scripts\pythonw.exe"
 
