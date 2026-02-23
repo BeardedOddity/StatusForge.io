@@ -1,41 +1,81 @@
-# 🐻 StatusForge 
+# 🐻 StatusForge
+StatusForge is a lightweight, self-hosted, Discord-less Rich Presence engine built for content creators and streamers.
 
-**StatusForge** is a lightweight, self-hosted, Discord-less Rich Presence engine built for content creators and livestreamers. 
+Tired of relying on Discord to broadcast what you're playing? Built with a "Right-to-Repair" philosophy, StatusForge is a 100% local engine that scans your active windows, fetches high-fidelity metadata, and pushes it directly to OBS and Streamer.bot.
 
-Tired of relying on Discord to broadcast what game you're playing? Built from the ground up with a "Right-to-Repair" philosophy, StatusForge is a 100% local engine that scans your active windows, fetches high-fidelity metadata, and pushes it directly to **OBS** and **Streamer.bot**. 
+No cloud tethers. No bloated software. No data harvesting. Your status belongs to you.
 
-No cloud tethers. No bloated software. No data harvesting. You own your setup.
+🛡️ Security, Privacy & Anti-Cheat Safety
+We know gamers are cautious about what runs on their rigs. StatusForge is built to be the "Glass House" of gaming software: transparent and safe.
 
----
+1. Anti-Cheat Safe (Vanguard, EAC, BattlEye)
+StatusForge uses Passive Process Scanning. It functions exactly like the Windows Task Manager.
 
-## ⚙️ How It Works (The Core Systems)
+No Injection: It does NOT inject code into game processes.
 
-StatusForge operates using three main backend systems to keep your stream updated silently and automatically:
+No Hooking: It does NOT read game memory or modify game files.
 
-1. **The Universal Scout:** A cross-platform background scanner that monitors your active windows. It knows the difference between a background process and the game you are actually playing. It works natively on Windows, macOS, and Linux (including SteamOS for Steam Deck users).
-2. **The Metadata Waterfall:** When the Scout detects a new game, the engine triggers a "waterfall" request to grab the highest quality cover art, release date, genre, and publisher. It checks **RAWG** first, falls back to **IGDB** and **SteamGridDB**, and finally checks **GOG** to ensure you always have art for your OBS widgets.
-3. **The Master Vault:** The engine's memory. The Vault safely stores your customized game titles (e.g., changing "eldenring.exe" to "Elden Ring") and maintains your "Exile" list, ensuring nuisance apps like `chrome.exe` or `obs64.exe` are never tracked as games.
+Visibility: It is 100% safe for competitive titles like Valorant, Apex Legends, and Call of Duty.
 
----
+2. The "Sandbox" Guarantee
+Unlike standard .exe installers, StatusForge never asks for Administrator privileges.
 
-## 📁 File Structure Explained
-Because we believe in transparent software, there are no hidden `.exe` installers or buried registry keys. Here is exactly what is inside the box:
+It creates a Virtual Environment (venv)—a localized "sandbox" folder.
 
-* `presence.py`: The Master Engine. This Python script runs the Flask web server, the Scout, and the API requests. 
-* `Config_Template.json`: The blank configuration file for your API keys and engine settings. 
-* `Start_Engine.vbs` / `.sh`: Silent background launchers for Windows and Mac/Linux so you don't have to look at a terminal window while streaming.
-* `Dashboard.html` & `Logic.js`: The frontend files that power your local control panel.
-* `/layouts/`: This folder contains the raw HTML/CSS files for your OBS widgets (Vertical, Horizontal Left, Horizontal Right).
-* `vault.json`: The cross-platform database that stores your Listed (tracked) and Delisted (ignored) apps.
-* `Custom_Meta.json`: (Auto-generated) Stores any manual overrides you make to a game's cover art or release date.
+All dependencies live inside that folder.
 
----
+Zero Trace: To uninstall, simply delete the folder. No registry bloat, no hidden background services left behind.
 
-## 🚀 Installation & Setup
+3. Total Privacy
+Zero Telemetry: We don't track your playtime, your hardware, or your habits.
 
-### Step 1: Prepare the Environment
-1. Clone or download this repository to your machine.
-2. Open your terminal/command prompt inside the extracted `StatusForge` folder.
-3. Create an isolated Virtual Environment so the engine doesn't clutter your PC's main Python installation:
-   ```bash
-   python -m venv venv
+No "Phoning Home": There is no central StatusForge server. Your data stays on your machine.
+
+Open Source: Every line of code is human-readable. Audit presence.py yourself to see exactly how your data is handled.
+
+✨ Core Systems
+The Universal Scout: A cross-platform background scanner (Windows, macOS, Linux/Steam Deck) that monitors your active windows to detect what you're playing.
+
+The Metadata Waterfall: A smart fetching system that grabs high-res cover art, genres, and release dates from RAWG, IGDB, SteamGridDB, and GOG.
+
+The Master Vault: A local database that lets you manually rename games or "Exile" apps (like chrome.exe) so they are never tracked.
+
+🚀 One-Click Installation
+StatusForge features a Self-Healing Auto-Installer. You don't need to know how to code to use it.
+
+Download & Extract the StatusForge folder.
+
+Rename Config_Template.json to Config.json and add your API keys (found in the setup guide below).
+
+Launch the Engine:
+
+Windows: Double-click Launch StatusForge.vbs.
+
+Linux/macOS: Run ./Start_Engine.sh.
+
+What happens next? The launcher will detect if you are missing necessary files, automatically forge a virtual environment, install all dependencies, and then boot the engine silently in the background.
+
+🖥️ The Master Dashboard
+Once running, navigate to your local control panel:
+👉 http://localhost:5050/forge-dashboard
+
+Monitor the Scout: See real-time detection and playtime.
+
+Generate OBS Widgets: Copy-paste secure URLs for Vertical or Horizontal overlays.
+
+Edit the Vault: Click "Lock Into Vault" to override game art or titles manually.
+
+Streamer.bot Sync: Enable auto_push in your config to have StatusForge update your Twitch/Kick category automatically.
+
+📁 File Structure
+presence.py: The heart of the engine (Flask server & Scout).
+
+Launch StatusForge.vbs: The silent, auto-installing launcher for Windows.
+
+layouts/: Contains the HTML/CSS for your OBS Browser Sources.
+
+Engine/vault.json: Your personal database of tracked and ignored games.
+
+requirements.txt: A list of the Python libraries the engine needs to run.
+
+Forged by the community, for the community. Stay Odd. 🐻🛠️
