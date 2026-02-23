@@ -1,0 +1,65 @@
+Install Dependencies
+Activate your virtual environment and install the required libraries:
+
+Bash
+# Windows
+venv\Scripts\activate
+pip install -r requirements.txt
+
+# Linux / macOS
+source venv/bin/activate
+pip install -r requirements.txt
+(Note for Linux users: The Scout requires xdotool to track active windows. Run sudo apt install xdotool if you don't already have it).
+
+Step 3: Secure Your Config
+Locate Config_Template.json in the main folder.
+
+Rename it to exactly Config.json.
+
+Open it in any text editor and paste in your API keys for RAWG, SteamGridDB, and IGDB (Client ID & Secret).
+
+Don't have API keys? The engine will automatically fall back to scraping GOG.com, but having keys ensures a 99% hit rate for obscure titles.
+
+RAWGs API: https://rawg.io/apidocs
+
+🎮 Booting the Engine & Using the Dashboard
+To start the engine, simply double-click Launch StatusForge.vbs (Windows) or run ./Launch StatusForge.sh (Mac/Linux). The engine will boot completely silently in the background.
+
+
+From the Dashboard, you can:
+
+Monitor the Scout: See exactly what game is detected, how long you've been playing, and what art the Waterfall grabbed.
+
+Generate Browser Source Widgets: Grab secure, token-protected URLs to paste directly into your OBS Browser Sources.
+
+Manage The Vault: Rename tracked .exe files, manually override cover art URLs, or permanently banish background apps from being scanned.
+
+View Live Logs: A built-in terminal to watch the engine's real-time decision-making.
+
+🎥 Broadcast software & Streamer.bot Integration
+Setting up Browser Source Widgets
+On the Dashboard, click the "Generate Local Widget" button.
+
+Select your preferred layout (Vertical, Horizontal Left, etc.).
+
+Copy the secure URL provided.
+
+In Meld studios, OBS or any other broadcast software add a new Browser Source, paste the URL, set the dimensions (usually 600x900 or 1000x400 depending on the widget), and check "Refresh browser when scene becomes active."
+
+Auto-Pushing to Streamer.bot
+StatusForge can automatically update your Twitch/Kick category when you launch a new game.
+
+Open your Config.json (or use the Dashboard settings).
+
+Set auto_push to true.
+
+Ensure your Streamer.bot HTTP Server is running on the port specified in your settings (default is 8080).
+
+StatusForge will now send a payload to Streamer.bot requesting an UpdateCategory action whenever your game changes!
+
+🛑 Shutting Down & Maintenance
+To shut down: Because StatusForge runs silently, you must click the red SHUT DOWN button on the bottom left of the Master Dashboard to safely kill the background process.
+
+Maintenance: If an update breaks a dependency, click the "Run System Repair" button on the Dashboard. The engine will automatically attempt to reinstall missing Python libraries and OS dependencies.
+
+Forged locally for the streaming community.

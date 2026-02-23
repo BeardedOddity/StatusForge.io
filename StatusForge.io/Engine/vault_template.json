@@ -1,0 +1,34 @@
+{
+    "listed_apps": {
+		"eldenring.exe": "Elden Ring",
+        "REPO.exe": "R.E.P.O.",
+        "ACShadows.exe": "Assassin's Creed Shadows",
+        "Raid.exe": "RAID: Shadow Legends",
+        "Among Us.exe": "Among Us",
+        "Fall of Avalon.exe": "Tainted Grail: The Fall of Avalon",
+        "RDR.exe": "Red Dead Redemption",
+        "Supermarket Simulator.exe": "Supermarket Simulator",
+        "tomb123.exe": "Tomb Raider I-III Remastered",
+        "tomb456.exe": "Tomb Raider IV-VI Remastered",
+        "HeavyRain.exe": "Heavy Rain",
+        "Tango-Win64-Shipping.exe": "ROGUE POINT",
+        "BeyondTwoSouls_Steam.exe": "Beyond: Two Souls",
+        "FalloutNV.exe": "Fallout: New Vegas",
+        "DetroitBecomeHuman.exe": "Detroit: Become Human",
+        "GhostOfTsushima.exe": "Ghost of Tsushima",
+        "MCC-Win64-Shipping.exe": "Halo: The Master Chief Collection",
+        "HouseFlipper.exe": "House Flipper",
+        "Megabonk.exe": "Megabonk",
+	},
+    "delisted_apps": [
+        "chrome.exe",
+        "obs64.exe",
+        "discord.exe",
+        "pythonw.exe",
+        "python.exe",
+        "explorer.exe",
+        "finder",
+        "taskmgr.exe"
+		"meldstudio.exe"
+    ]
+}

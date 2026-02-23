@@ -1,0 +1,16 @@
+{
+    "api_keys": {
+        "rawg": "ENTER_RAWG_KEY_HERE",
+        "steamgrid": "ENTER_SGDB_KEY_HERE",
+        "igdb_client": "ENTER_IGDB_CLIENT_ID_HERE",
+        "igdb_secret": "ENTER_IGDB_SECRET_HERE"
+    },
+    "engine_settings": {
+        "idle_category": "Just Chatting",
+        "sb_port": 8080,
+        "scan_interval": 5,
+        "widget_poll_rate": 3,
+        "safe_mode": false,
+        "auto_push": false
+    }
+}

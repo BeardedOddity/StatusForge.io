@@ -1,0 +1,34 @@
+# ==========================================
+# 🛠️ STATUSFORGE CORE DEPENDENCIES
+# ==========================================
+#
+# HOW TO INSTALL:
+# Open your terminal or command prompt in this folder 
+# and copy/paste the codes below for your specific OS.
+#
+# --- WINDOWS CODES ---
+# python -m venv venv
+# venv\Scripts\activate
+# pip install -r requirements.txt
+#
+# --- MAC & LINUX CODES ---
+# python3 -m venv venv
+# source venv/bin/activate
+# pip install -r requirements.txt
+# (Linux Users: also run 'sudo apt install xdotool')
+#
+# ==========================================
+
+# --- Web Framework & UI ---
+flask
+flask-cors
+
+# --- System & Process Monitoring ---
+psutil
+
+# --- Network & Data ---
+requests
+
+# --- Maintenance & Caching ---
+pillow
+pyyaml
