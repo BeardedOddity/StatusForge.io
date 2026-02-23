@@ -1,5 +1,5 @@
- **StatusForge.io**
-StatusForge is a lightweight, self-hosted, Discord-less Rich Presence engine built for content creators and streamers.
+ ***StatusForge.io***
+is a lightweight, self-hosted, Discord-less Rich Presence engine built for content creators and streamers.
 
 StatusForge is a 100% local engine that scans your active windows, fetches high-fidelity metadata, and pushes it directly to OBS and Streamer.bot.
 
