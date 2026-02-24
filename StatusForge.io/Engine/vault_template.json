@@ -18,7 +18,7 @@
         "GhostOfTsushima.exe": "Ghost of Tsushima",
         "MCC-Win64-Shipping.exe": "Halo: The Master Chief Collection",
         "HouseFlipper.exe": "House Flipper",
-        "Megabonk.exe": "Megabonk",
+        "Megabonk.exe": "Megabonk"
 	},
     "delisted_apps": [
         "3dsmax.exe",
@@ -237,4 +237,5 @@
     ]
 
 }
+
 
