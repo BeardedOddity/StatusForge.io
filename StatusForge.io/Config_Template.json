@@ -11,6 +11,8 @@
         "scan_interval": 5,
         "widget_poll_rate": 3,
         "safe_mode": false,
-        "auto_push": false
+        "auto_push": false,
+        "widget_fade_timer": 15
     }
+
 }
