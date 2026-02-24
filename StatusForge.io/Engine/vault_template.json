@@ -28,7 +28,33 @@
         "python.exe",
         "explorer.exe",
         "finder",
-        "taskmgr.exe"
-		"meldstudio.exe"
+        "taskmgr.exe",
+        "meldstudio.exe",
+        "brave.exe",
+        "firefox.exe",
+        "winword.exe",
+        "excel.exe",
+        "outlook.exe",
+        "notepad.exe",
+        "cmd.exe",
+        "powershell.exe",
+        "diskmgmt.msc",
+        "msconfig.exe",
+        "defender.exe",
+        "cleanmgr.exe",
+        "svchost.exe",
+        "lsass.exe",
+        "winlogon.exe",
+        "explorer.exe",
+        "dwm.exe",
+        "spoolsv.exe",
+        "msedge.exe",
+        "rundll32.exe",
+        "7z.exe",
+        "Bluestacks.exe",
+        "HD-Player.exe",
+        "SearchHost.exe",
+        "searchhost.exe"
     ]
+
 }
