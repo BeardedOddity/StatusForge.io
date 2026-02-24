@@ -45,13 +45,13 @@ def save_json(path, data):
     with open(path, 'w') as f: json.dump(data, f, indent=4)
 
 # Initialize Universal Vault if empty
-DEFAULT_VAULT = {"listed_apps": {}, "delisted_apps": ["chrome.exe", "obs64.exe", "discord.exe", "pythonw.exe", "finder", "explorer.exe"]}
+DEFAULT_VAULT = {"listed_apps": {}, "delisted_apps": ["chrome.exe", "obs64.exe", "pythonw.exe", "finder", "explorer.exe"]}
 load_json(VAULT_PATH, DEFAULT_VAULT)
 
-# Default Config Structure
+# Default Config Structure (Updated with widget_fade_timer)
 DEFAULT_CONFIG = {
     "api_keys": {"rawg": "", "steamgrid": "", "igdb_client": "", "igdb_secret": "", "igdb_token": ""},
-    "engine_settings": {"idle_category": "Just Chatting", "sb_port": 8080, "scan_interval": 5, "widget_poll_rate": 3, "safe_mode": False, "auto_push": False}
+    "engine_settings": {"idle_category": "Just Chatting", "sb_port": 8080, "scan_interval": 5, "widget_poll_rate": 3, "safe_mode": False, "auto_push": False, "widget_fade_timer": 15}
 }
 load_json(CONFIG_PATH, DEFAULT_CONFIG)
 
@@ -83,7 +83,7 @@ def get_active_window_info():
 # --- API ROUTES ---
 @app.route('/')
 @app.route('/dashboard')
-@app.route('/forge-dashboard') # Added for Tablet Access
+@app.route('/forge-dashboard') 
 def serve_dashboard(): return send_from_directory(BASE_DIR, 'Dashboard.html')
 
 @app.route('/layouts/<path:filename>')
@@ -101,8 +101,15 @@ def serve_secure_widget(token, filename):
 def get_status():
     missing_deps = []
     if CURRENT_OS == "Linux" and subprocess.run(["which", "xdotool"], capture_output=True).returncode != 0: missing_deps.append("xdotool")
+    
+    # Load config to grab the live widget fade timer
+    config = load_json(CONFIG_PATH, DEFAULT_CONFIG)
+    fade_time = config.get("engine_settings", {}).get("widget_fade_timer", 15)
+    
     payload = status_data.copy()
     payload["system_info"] = {"os": CURRENT_OS, "active_path": BASE_DIR.replace("\\", "/"), "missing_deps": missing_deps}
+    payload["fade_timer"] = fade_time # Pass to the widget!
+    
     return jsonify(payload)
 
 @app.route('/get-token')
@@ -165,6 +172,8 @@ def manage_settings():
         current_config["engine_settings"]["idle_category"] = data.get("idle_category", "Just Chatting")
         current_config["engine_settings"]["sb_port"] = data.get("sb_port", 8080)
         current_config["engine_settings"]["widget_poll_rate"] = data.get("widget_poll_rate", 3)
+        current_config["engine_settings"]["widget_fade_timer"] = data.get("widget_fade_timer", 15) # Saves the new timer!
+        
         current_config["api_keys"]["rawg"] = data.get("rawg_key", "")
         current_config["api_keys"]["steamgrid"] = data.get("sgdb_key", "")
         current_config["api_keys"]["igdb_client"] = data.get("igdb_client", "")
