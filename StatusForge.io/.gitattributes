@@ -1,0 +1,7 @@
+# Enforce LF line endings for all Mac and Linux launch scripts
+*.command text eol=lf
+*.sh text eol=lf
+*.bash text eol=lf
+
+# It is also best practice to normalize your Python engine files
+*.py text eol=lf
