@@ -1,5 +1,43 @@
-import psutil, time, threading, json, logging, os, re, secrets, ctypes, webbrowser, platform, subprocess, sys
+# ==========================================================================
+# StatusForge
+# Built by BearddOddity
+# A fully local, open-source Rich Presence engine.
+# Right-to-Repair. No Cloud. Total Control.
+# https://kick.com/bearddoddity
+# https://www.twitch.tv/bearddoddity
+# https://www.youtube.com/@BearddOddity
+# ========================================================================== 
+
+import sys, subprocess, platform, os
+
+# Intercept missing dependencies and force an install before the engine shits the bed
+def forge_bootstrap():
+    required_libs = ["flask", "flask-cors", "requests", "psutil"]
+    try:
+        import flask
+        import flask_cors
+        import requests
+        import psutil
+    except ImportError as e:
+        print(f"\n[StatusForge] ⚠️ Missing dependency detected: {e.name}")
+        print("[StatusForge] 🛠️ Auto-repair initiated. Forging components...")
+        try:
+            # --user flag forces Linux/SteamOS to bypass system read-only locks
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--user"] + required_libs)
+            print("[StatusForge] ✅ Components forged successfully. Rebooting Engine...\n")
+            # Seamlessly overwrite the crashed process with a fresh one
+            os.execv(sys.executable, [sys.executable] + sys.argv)
+        except Exception as repair_err:
+            print(f"\n[StatusForge] 💀 FATAL: Auto-repair failed. Check your pip installation. Error: {repair_err}")
+            sys.exit(1)
+
+# Run the bootloader before anything else
+forge_bootstrap()
+
+# --- Now we can safely load the rest ---
+import time, threading, json, logging, re, secrets, ctypes, webbrowser
 import urllib.request, urllib.parse
+import psutil
 from logging.handlers import RotatingFileHandler
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
@@ -8,7 +46,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LAYOUTS_DIR = os.path.join(BASE_DIR, 'layouts') 
 CURRENT_OS = platform.system()
 
-# --- LOGGING ---
+# Dump logs to disk so we can troubleshoot weird crashes
 LOG_PATH = os.path.join(BASE_DIR, 'debug.log')
 log_handler = RotatingFileHandler(LOG_PATH, maxBytes=1024 * 1024, backupCount=1)
 logging.basicConfig(handlers=[log_handler], level=logging.INFO, format='%(asctime)s | %(message)s', datefmt='%H:%M:%S')
@@ -16,6 +54,7 @@ logging.basicConfig(handlers=[log_handler], level=logging.INFO, format='%(asctim
 app = Flask(__name__)
 CORS(app)
 
+# Kill the endless stream of 200 OK status pings in the terminal
 class NoSpamFilter(logging.Filter):
     def filter(self, record):
         msg = record.getMessage()
@@ -24,14 +63,15 @@ class NoSpamFilter(logging.Filter):
 logging.getLogger('werkzeug').addFilter(NoSpamFilter())
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
-# --- CONFIG & STATE ---
 status_data = {"is_playing": False, "game_title": "System Initializing...", "process_name": "", "start_time": 0, "cover_url": "", "release_date": "", "genre": "", "publisher": ""}
 VAULT_PATH = os.path.join(BASE_DIR, "vault.json")
 CUSTOM_META_PATH = os.path.join(BASE_DIR, "Custom_Meta.json")
 TOKEN_PATH = os.path.join(BASE_DIR, "Widget_Token.txt")
+
 # Config is expected in the parent directory (Root), above Engine folder
 CONFIG_PATH = os.path.join(os.path.dirname(BASE_DIR), "Config.json")
 
+# Generate a fresh auth token for OBS if one doesn't exist
 if not os.path.exists(TOKEN_PATH):
     with open(TOKEN_PATH, 'w') as f: f.write(secrets.token_urlsafe(16))
 with open(TOKEN_PATH, 'r') as f: WIDGET_TOKEN = f.read().strip()
@@ -44,18 +84,17 @@ def load_json(path, default):
 def save_json(path, data):
     with open(path, 'w') as f: json.dump(data, f, indent=4)
 
-# Initialize Universal Vault if empty
+# Setup the vault (creates it if a user accidentally deleted it)
 DEFAULT_VAULT = {"listed_apps": {}, "delisted_apps": ["chrome.exe", "obs64.exe", "pythonw.exe", "finder", "explorer.exe"]}
 load_json(VAULT_PATH, DEFAULT_VAULT)
 
-# Default Config Structure (Updated with widget_fade_timer)
 DEFAULT_CONFIG = {
     "api_keys": {"rawg": "", "steamgrid": "", "igdb_client": "", "igdb_secret": "", "igdb_token": ""},
     "engine_settings": {"idle_category": "Just Chatting", "sb_port": 8080, "scan_interval": 5, "widget_poll_rate": 3, "safe_mode": False, "auto_push": False, "widget_fade_timer": 15}
 }
 load_json(CONFIG_PATH, DEFAULT_CONFIG)
 
-# --- HELPER: CROSS-PLATFORM SCOUT ---
+# The Universal Scout Engine - Track window focus across Mac, Windows, and Linux
 def get_active_window_info():
     try:
         if CURRENT_OS == "Windows":
@@ -80,7 +119,6 @@ def get_active_window_info():
     except: return None, None
     return None, None
 
-# --- API ROUTES ---
 @app.route('/')
 @app.route('/dashboard')
 @app.route('/forge-dashboard') 
@@ -102,14 +140,12 @@ def get_status():
     missing_deps = []
     if CURRENT_OS == "Linux" and subprocess.run(["which", "xdotool"], capture_output=True).returncode != 0: missing_deps.append("xdotool")
     
-    # Load config to grab the live widget fade timer
     config = load_json(CONFIG_PATH, DEFAULT_CONFIG)
     fade_time = config.get("engine_settings", {}).get("widget_fade_timer", 15)
     
     payload = status_data.copy()
     payload["system_info"] = {"os": CURRENT_OS, "active_path": BASE_DIR.replace("\\", "/"), "missing_deps": missing_deps}
-    payload["fade_timer"] = fade_time # Pass to the widget!
-    
+    payload["fade_timer"] = fade_time 
     return jsonify(payload)
 
 @app.route('/get-token')
@@ -172,7 +208,7 @@ def manage_settings():
         current_config["engine_settings"]["idle_category"] = data.get("idle_category", "Just Chatting")
         current_config["engine_settings"]["sb_port"] = data.get("sb_port", 8080)
         current_config["engine_settings"]["widget_poll_rate"] = data.get("widget_poll_rate", 3)
-        current_config["engine_settings"]["widget_fade_timer"] = data.get("widget_fade_timer", 15) # Saves the new timer!
+        current_config["engine_settings"]["widget_fade_timer"] = data.get("widget_fade_timer", 15) 
         
         current_config["api_keys"]["rawg"] = data.get("rawg_key", "")
         current_config["api_keys"]["steamgrid"] = data.get("sgdb_key", "")
@@ -181,7 +217,7 @@ def manage_settings():
         save_json(CONFIG_PATH, current_config)
         return jsonify({"status": "success"})
     
-    # Flatten structure for dashboard compatibility
+    # Flatten config to map directly to the UI elements
     flat_data = {**current_config["engine_settings"]}
     flat_data["rawg_key"] = current_config["api_keys"].get("rawg", "")
     flat_data["sgdb_key"] = current_config["api_keys"].get("steamgrid", "")
@@ -229,7 +265,7 @@ def repair_engine():
     threading.Thread(target=run_repair, daemon=True).start()
     return jsonify({"status": "Repair initiated"})
 
-# --- METADATA WATERFALL ---
+# Waterfall logic for fetching cover art and game data
 def fetch_metadata(title):
     global status_data
     config = load_json(CONFIG_PATH, DEFAULT_CONFIG)
@@ -257,7 +293,6 @@ def fetch_metadata(title):
                 status_data["genre"] = game["genres"][0]["name"].upper()
         except: pass
 
-    # IGDB LOGIC
     if igdb_c and igdb_s and (not status_data.get("cover_url") or not status_data.get("release_date")):
         def do_igdb_fetch(token):
             body = f'search "{title}"; fields cover.url,first_release_date,genres.name,involved_companies.company.name; limit 1;'.encode('utf-8')
@@ -289,7 +324,6 @@ def fetch_metadata(title):
                             do_igdb_fetch(new_token) 
                 except Exception as ex: logging.warning(f"[WATERFALL] IGDB Auto-Forge failed: {ex}")
 
-    # SGDB LOGIC
     if sgdb and not status_data.get("cover_url"):
         try:
             req = urllib.request.Request(f"https://www.steamgriddb.com/api/v2/search/autocomplete/{safe_title}", headers={'Authorization': f'Bearer {sgdb}'})
@@ -303,7 +337,6 @@ def fetch_metadata(title):
                         if data2.get("data"): status_data["cover_url"] = data2["data"][0]["url"]
         except: pass
 
-    # GOG LOGIC
     if not status_data.get("cover_url") or not status_data.get("publisher"):
         try:
             req = urllib.request.Request(f"https://embed.gog.com/games/ajax/filtered?mediaType=game&search={safe_title}")
@@ -322,7 +355,7 @@ def fetch_metadata(title):
     if not status_data.get("publisher"): status_data["publisher"] = "INDIE"
     logging.info(f"[WATERFALL] Metadata locked: {title}")
 
-# --- SCANNER ---
+# Core background loop that actually watches the PC
 def monitor_games():
     global status_data
     config = load_json(CONFIG_PATH, DEFAULT_CONFIG)
@@ -334,12 +367,10 @@ def monitor_games():
     missed_scans = 0 
     
     while True:
-        # Load from Universal Vault
         vault = load_json(VAULT_PATH, DEFAULT_VAULT)
         listed_lower_map = vault.get("listed_apps", {})
         delisted = vault.get("delisted_apps", [])
         
-        # SCOUTING
         window_title, active_exe = get_active_window_info()
         if window_title and active_exe:
             active_lower = active_exe.lower()
@@ -347,10 +378,9 @@ def monitor_games():
             if active_lower not in delisted and active_lower not in core_ignores and active_lower not in listed_lower_map:
                 vault["listed_apps"][active_lower] = window_title
                 save_json(VAULT_PATH, vault)
-                listed_lower_map[active_lower] = window_title # update local map immediately
+                listed_lower_map[active_lower] = window_title 
                 logging.info(f"[AUTO-FORGE] {CURRENT_OS} Scout: {window_title} ({active_exe})")
 
-        # PROCESS SCANNER
         found = False
         for proc in psutil.process_iter(['name']):
             try:
@@ -365,7 +395,6 @@ def monitor_games():
                         logging.info(f"[SCANNER] Found: {game_title}")
                         threading.Thread(target=fetch_metadata, args=(game_title,), daemon=True).start()
                         
-                        # Re-load config in case safe mode changed
                         current_settings = load_json(CONFIG_PATH, DEFAULT_CONFIG).get("engine_settings", {})
                         if current_settings.get("auto_push", False) and not current_settings.get("safe_mode", False):
                             try:
@@ -376,6 +405,7 @@ def monitor_games():
                     break
             except: continue
         
+        # If we lose the game process for too long, reset to idle
         if not found and status_data["is_playing"]:
             missed_scans += 1
             if missed_scans >= 8:
