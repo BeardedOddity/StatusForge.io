@@ -1,0 +1,77 @@
+name: Build Mac and Linux StatusForge
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Allows you to manually trigger the build
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build Python Engine (Mac)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller flask flask-cors requests psutil
+          pyinstaller --onefile presence.py
+          cp dist/presence ./presence
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Build Electron App (Mac)
+        run: npm run build:mac
+
+      - name: Upload Mac Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StatusForge-Mac
+          path: dist/*.dmg
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build Python Engine (Linux)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller flask flask-cors requests psutil
+          pyinstaller --onefile presence.py
+          cp dist/presence ./presence
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Build Electron App (Linux)
+        run: npm run build:linux
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StatusForge-Linux
+          path: dist/*.AppImage
