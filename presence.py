@@ -86,6 +86,11 @@ with open(TOKEN_PATH, 'r') as f: WIDGET_TOKEN = f.read().strip()
 def require_local_auth(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # 1. Allow CORS preflight requests to pass unchallenged
+        if request.method == 'OPTIONS':
+            return jsonify({"status": "success"}), 200
+            
+        # 2. Check the token for all actual data requests
         token = request.headers.get('X-Forge-Token')
         if not token or token != WIDGET_TOKEN:
             logging.warning(f"[SECURITY] Blocked unauthorized access attempt to {request.path}")
@@ -647,7 +652,7 @@ def get_status():
     payload["broadcast_status"] = broadcast_status 
     return jsonify(payload)
 
-@app.route('/resolve-bundle', methods=['POST'])
+@app.route('/resolve-bundle', methods=['POST', 'OPTIONS'])
 @require_local_auth
 def resolve_bundle():
     global status_data
@@ -682,7 +687,7 @@ def get_token(): return jsonify({"token": WIDGET_TOKEN})
 def serve_kick_db():
     return jsonify(list(load_json(KICK_DB_PATH, {}).keys()))
 
-@app.route('/list', methods=['POST'])
+@app.route('/list', methods=['POST', 'OPTIONS'])
 @require_local_auth
 def list_app():
     data = request.json
@@ -710,7 +715,7 @@ def list_app():
         threading.Thread(target=fetch_metadata, args=(status_data["game_title"],), daemon=True).start()
     return jsonify({"status": "success"})
 
-@app.route('/delist', methods=['POST'])
+@app.route('/delist', methods=['POST', 'OPTIONS'])
 @require_local_auth
 def delist_app():
     proc_name = request.json.get('process')
@@ -728,13 +733,13 @@ def get_logs():
         with open(LOG_PATH, 'r') as f: return jsonify({"logs": f.readlines()[-20:]})
     except: return jsonify({"logs": []})
 
-@app.route('/clear-logs', methods=['POST'])
+@app.route('/clear-logs', methods=['POST', 'OPTIONS'])
 @require_local_auth
 def clear_logs():
     with open(LOG_PATH, 'w') as f: f.write("System logs purged.\n")
     return jsonify({"status": "success"})
 
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route('/settings', methods=['GET', 'POST', 'OPTIONS'])
 @require_local_auth
 def manage_settings():
     current_config = load_json(CONFIG_PATH, DEFAULT_CONFIG)
@@ -783,7 +788,7 @@ def manage_settings():
     
     return jsonify(flat_data)
 
-@app.route('/push-stream', methods=['POST'])
+@app.route('/push-stream', methods=['POST', 'OPTIONS'])
 @require_local_auth
 def push_stream():
     data = request.json
@@ -792,13 +797,13 @@ def push_stream():
     result = trigger_category_update(category)
     return jsonify(result or {"status": "success"})
 
-@app.route('/shutdown', methods=['POST'])
+@app.route('/shutdown', methods=['POST', 'OPTIONS'])
 @require_local_auth
 def shutdown_engine():
     threading.Timer(1.0, lambda: os._exit(0)).start()
     return jsonify({"status": "success"})
 
-@app.route('/repair-engine', methods=['POST'])
+@app.route('/repair-engine', methods=['POST', 'OPTIONS'])
 @require_local_auth
 def repair_engine():
     def run_repair():
