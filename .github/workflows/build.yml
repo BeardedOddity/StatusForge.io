@@ -42,7 +42,7 @@ jobs:
           path: dist/*.exe
 
   build-mac:
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
