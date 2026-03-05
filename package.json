@@ -18,8 +18,7 @@
     },
     "files": [
       "main.js",
-      "presence.exe",
-	  "presence",
+      "presence*",
       "Dashboard.html",
       "Logic.js",
       "layouts/**/*",
