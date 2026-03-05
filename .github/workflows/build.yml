@@ -34,7 +34,7 @@ jobs:
 
       - name: Build Electron App (Windows)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: npm run build:win
 
       - name: Upload Windows Artifact
@@ -71,7 +71,7 @@ jobs:
 
       - name: Build Electron App (Mac)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: npm run build:mac
 
       - name: Upload Mac Artifact
@@ -108,7 +108,7 @@ jobs:
 
       - name: Build Electron App (Linux)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: npm run build:linux
 
       - name: Upload Linux Artifact
