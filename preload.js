@@ -1,8 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// We expose a safe API object to the renderer process (Dashboard.html)
-// under the global namespace 'forgeAPI'
 contextBridge.exposeInMainWorld('forgeAPI', {
-    // Only expose the specific IPC channels the frontend actually needs
-    triggerUpdateImport: () => ipcRenderer.send('import-update')
+    checkUpdate: () => ipcRenderer.send('check-update'),
+    downloadUpdate: () => ipcRenderer.send('download-update'),
+    installUpdate: () => ipcRenderer.send('install-update'),
+    onUpdateStatus: (callback) => ipcRenderer.on('update-status', (event, data) => callback(data))
 });

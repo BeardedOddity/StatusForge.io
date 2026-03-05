@@ -86,6 +86,16 @@
         <div class="bundle-title">Compilation Detected<br><span style="font-size: 16px; color: #00ff88; text-transform: uppercase;">Which game are you playing?</span></div>
         <div id="bundleGrid" class="bundle-grid"></div>
     </div>
+	
+	<div id="updateModal" class="bundle-modal-overlay">
+        <div class="card" style="text-align: center; max-width: 400px; padding: 40px; border-color: #00ff88; box-shadow: 0 10px 40px rgba(0,255,136,0.2);">
+            <h2 style="color: #00ff88; margin-top: 0; font-weight: 900; text-transform: uppercase;">Update Available!</h2>
+            <p id="updateVersionText" style="font-size: 24px; font-weight: 700; color: white;">Version --</p>
+            <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 30px; line-height: 1.5;">A new version of StatusForge has been forged. Download it now to secure the latest features.</p>
+            <button id="downloadUpdateBtn" class="btn-primary" onclick="triggerDownload()">DOWNLOAD UPDATE</button>
+            <button class="btn-primary" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; margin-top: 15px;" onclick="document.getElementById('updateModal').classList.remove('active')">LATER</button>
+        </div>
+    </div>
 
 <nav class="sidebar">
         <h1 class="logo">StatusForge.io</h1>
@@ -94,6 +104,9 @@
         <button class="nav-btn" id="nav-api" onclick="swapViews('api')">🗝️ API Keys</button>
         <button class="nav-btn" id="nav-engine" onclick="swapViews('engine')">⚙️ Engine Config</button>
         <button class="nav-btn" id="nav-sb" onclick="swapViews('sb')">♾️ Routing</button>
+		<button class="nav-btn" id="nav-update" style="color: rgba(255,255,255,0.3); pointer-events: none; transition: 0.4s;" onclick="document.getElementById('updateModal').classList.add('active')">
+            📥 <span id="updateNavText">Up To Date</span>
+        </button>
         
         <div style="flex-grow: 1;"></div>
         
@@ -243,28 +256,6 @@
                 </div>
             </div>
             <button onclick="commitEngineSettings()" class="btn-primary" style="margin-bottom: 30px;">Save Widget / Engine Config?</button>
-
-            <div class="card" style="border-color: rgba(0, 255, 136, 0.2);">
-				<h3 style="margin:0 0 10px 0; font-size:16px; color:#00ff88;">HOT-PATCHER</h3>
-				<p style="font-size:12px; opacity:0.6; margin-bottom:20px;">Select a StatusForge .zip patch to instantly upgrade the core engine, dashboard, and layouts without reinstalling.</p>
-				<button onclick="triggerUpdateImport()" id="updateBtn" class="btn-primary" style="background:transparent; border: 1px solid #00ff88; color:#00ff88;">💾 IMPORT UPDATE PATCH</button>
-			</div>
-            
-            <script>
-				function triggerUpdateImport() {
-					try {
-						// Replaced the dangerous require() with our secure bridge
-						if (window.forgeAPI) {
-							window.forgeAPI.triggerUpdateImport();
-						} else {
-							throw new Error("Bridge not found");
-						}
-					} catch (e) {
-						console.error("Electron IPC bridge not found.", e);
-						alert("Hot-Patching is only available within the standalone StatusForge desktop app.");
-					}
-				}
-			</script>
         </div>
 
 <div id="screen-sb" class="screen">
@@ -387,6 +378,48 @@
         scoutPoller = setInterval(pingScoutEngine, 3000);
         terminalPoller = setInterval(tailEngineLogs, 3000);
     };
+
+    // === OTA UPDATER LOGIC ===
+    if (window.forgeAPI) {
+        window.forgeAPI.onUpdateStatus((data) => {
+            const btn = document.getElementById('nav-update');
+            const text = document.getElementById('updateNavText');
+            const dwnBtn = document.getElementById('downloadUpdateBtn');
+
+            if (data.status === 'available') {
+                btn.style.color = '#00ff88';
+                btn.style.borderColor = '#00ff88';
+                btn.style.background = 'rgba(0,255,136,0.1)';
+                btn.style.pointerEvents = 'auto';
+                btn.style.boxShadow = '0 0 15px rgba(0,255,136,0.2)';
+                text.innerText = 'Update Available';
+                document.getElementById('updateVersionText').innerText = `Version ${data.version}`;
+                forgeToast("New StatusForge update detected!", "success");
+            } 
+            else if (data.status === 'downloading') {
+                let pct = Math.round(data.percent);
+                text.innerText = `Downloading: ${pct}%`;
+                dwnBtn.innerText = `DOWNLOADING... ${pct}%`;
+                dwnBtn.style.pointerEvents = 'none';
+                dwnBtn.style.background = 'rgba(0,255,136,0.5)';
+            } 
+            else if (data.status === 'ready') {
+                text.innerText = 'Restart to Install';
+                dwnBtn.innerText = 'RESTART & INSTALL';
+                dwnBtn.style.pointerEvents = 'auto';
+                dwnBtn.style.background = '#00ff88';
+                dwnBtn.onclick = () => window.forgeAPI.installUpdate();
+                forgeToast("Update ready to install.", "success");
+            }
+        });
+
+        // Tell the engine to silently check for updates 5 seconds after boot
+        setTimeout(() => window.forgeAPI.checkUpdate(), 5000);
+    }
+
+    function triggerDownload() {
+        if (window.forgeAPI) window.forgeAPI.downloadUpdate();
+    }
 
     function forgeToast(msg, type="success") {
         const box = document.getElementById('toastBox');

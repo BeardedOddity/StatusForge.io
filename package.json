@@ -1,18 +1,24 @@
 {
   "name": "statusforge.io",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "StatusForge.io Rich Presence Engine",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-builder --win --x64 --publish never",
-    "build:mac": "electron-builder --mac --universal --publish never",
-    "build:linux": "electron-builder --linux AppImage --publish never"
+    "build:win": "electron-builder --win --x64 --publish always",
+    "build:mac": "electron-builder --mac --universal --publish always",
+    "build:linux": "electron-builder --linux AppImage --publish always"
   },
   "build": {
     "appId": "com.bearddoddity.statusforge.io",
     "productName": "StatusForge.io",
     "asar": false,
+    "publish": [{
+      "provider": "github",
+      "owner": "BeardedOddity",
+      "repo": "StatusForge.io",
+	  "releaseType": "draft"
+    }],
     "directories": {
       "output": "dist"
     },
@@ -36,6 +42,7 @@
     }
   },
   "dependencies": {
+    "electron-updater": "^6.8.3",
     "extract-zip": "^2.0.1"
   },
   "devDependencies": {
