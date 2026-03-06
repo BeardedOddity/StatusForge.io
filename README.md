@@ -13,4 +13,4 @@ If you play a game that the public APIs struggle to find, or if you found a much
 3. Click **📥 EXPORT DATABASE** to get your local `Forge_Database.json`.
 4. Submit a **Pull Request (PR)** to this branch, uploading your updated `.json` file.
 
-*Note: The I (BearddOddity) manually reviews all Pull Requests. Please ensure your cover art URLs are direct image links (e.g., ending in `.jpg` or `.png`) and your Kick/Twitch IDs are numeric.*
+*Note: I (BearddOddity) manually reviews all Pull Requests. Please ensure your cover art URLs are direct image links (e.g., ending in `.jpg` or `.png`) and your Kick/Twitch IDs are numeric.*
